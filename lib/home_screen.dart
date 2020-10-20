@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:social_media_share_app/image_preview.dart';
 import 'package:social_media_share_app/utils/image_utils.dart';
 
 class HomeScreen extends HookWidget {
   final String _platformVersion = 'Unknown';
+  final picker = ImagePicker();
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +27,7 @@ class HomeScreen extends HookWidget {
                   fillColor: Colors.black,
                   filled: true,
                   border: InputBorder.none,
-                  hintText: "Enter the title",
+                  hintText: "What's the message?",
                   hintStyle: TextStyle(color: Colors.grey[600])),
               style: TextStyle(color: Colors.white),
             ),
@@ -59,23 +61,82 @@ class HomeScreen extends HookWidget {
       List<String> images, Function(String) onImageSelected) {
     return ListView.builder(
       itemBuilder: (context, index) {
-        var imageUri = images[index];
-        return GestureDetector(
-            onTap: () {
-              onImageSelected(imageUri);
+        if (index == 0) {
+          return GestureDetector(
+            onTap: () async {
+              final pickedFile =
+                  await picker.getImage(source: ImageSource.camera);
+              onImageSelected(pickedFile.path);
             },
-            child: getImagePreview(imageUri));
+            child: Card(
+              color: Colors.black,
+              shape: RoundedRectangleBorder(
+                  side: BorderSide(
+                    color: Colors.grey[900],
+                  ),
+                  borderRadius: BorderRadius.all(Radius.circular(10))),
+              clipBehavior: Clip.hardEdge,
+              child: SizedBox(
+                  height: 100,
+                  width: 90,
+                  child: Icon(
+                    EvilIcons.camera,
+                    size: 36,
+                    color: Colors.blue,
+                  )),
+            ),
+          );
+        } else if (index == (images.length + 1)) {
+          return GestureDetector(
+            onTap: () async {
+              final pickedFile =
+                  await picker.getImage(source: ImageSource.gallery);
+              onImageSelected(pickedFile.path);
+            },
+            child: Card(
+              color: Colors.black,
+              shape: RoundedRectangleBorder(
+                  side: BorderSide(
+                    color: Colors.grey[900],
+                  ),
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(10),
+                  )),
+              clipBehavior: Clip.hardEdge,
+              child: SizedBox(
+                  height: 100,
+                  width: 90,
+                  child: Icon(
+                    EvilIcons.image,
+                    size: 36,
+                    color: Colors.blue,
+                  )),
+            ),
+          );
+        } else {
+          var imageUri = images[index - 1];
+          return GestureDetector(
+              onTap: () {
+                onImageSelected(imageUri);
+              },
+              child: getImagePreview(imageUri));
+        }
       },
-      itemCount: images.length,
+      itemCount: images.length + 2,
       scrollDirection: Axis.horizontal,
+      physics: BouncingScrollPhysics(),
     );
   }
 
   Widget buildSelectedImagePreview(String url) {
     if (url == null) {
-      return Icon(AntDesign.camera);
+      return Icon(
+        EvilIcons.image,
+        size: 70,
+        color: Colors.blue,
+      );
     } else {
-      return Image.file(File(url));
+      return Image.file(File(url), fit: BoxFit.fill,);
     }
   }
 }
