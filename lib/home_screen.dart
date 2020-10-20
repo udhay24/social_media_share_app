@@ -2,20 +2,36 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:social_media_share_app/image_preview.dart';
 import 'package:social_media_share_app/utils/image_utils.dart';
+import 'package:social_share/social_share.dart';
 
-class HomeScreen extends HookWidget {
-  final String _platformVersion = 'Unknown';
+class HomeScreen extends StatefulWidget {
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
   final picker = ImagePicker();
+  final TextEditingController _titleController = TextEditingController();
+  var selectedImage;
+
+  void changeImage(newImage) {
+    setState(() {
+      selectedImage = newImage;
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _titleController.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final TextEditingController _titleController = useTextEditingController();
-    var selectedImage = useState<String>(null);
     return Scaffold(
         appBar: AppBar(title: Text("Social Share")),
         body: Column(
@@ -31,7 +47,7 @@ class HomeScreen extends HookWidget {
                   hintStyle: TextStyle(color: Colors.grey[600])),
               style: TextStyle(color: Colors.white),
             ),
-            Expanded(child: buildSelectedImagePreview(selectedImage.value)),
+            Expanded(child: buildSelectedImagePreview(selectedImage)),
             Align(
               alignment: Alignment.bottomCenter,
               child: SizedBox(
@@ -43,16 +59,20 @@ class HomeScreen extends HookWidget {
                       AsyncSnapshot<List<String>> snapShot) {
                     if (snapShot.hasData && snapShot.data != null) {
                       return buildImagePreviewList(snapShot.data, (imageUri) {
-                        selectedImage.value = imageUri;
+                        changeImage(imageUri);
                       });
                     } else {
-                      print("no images available");
                       return Text("no images available");
                     }
                   },
                 ),
               ),
-            )
+            ),
+            Divider(
+              thickness: 2,
+              color: Colors.grey[900],
+            ),
+            getShareOptions()
           ],
         ));
   }
@@ -136,7 +156,58 @@ class HomeScreen extends HookWidget {
         color: Colors.blue,
       );
     } else {
-      return Image.file(File(url), fit: BoxFit.fill,);
+      return Image.file(
+        File(url),
+        fit: BoxFit.fill,
+      );
     }
+  }
+
+  Widget getShareOptions() {
+    return Row(
+      mainAxisSize: MainAxisSize.max,
+      children: [
+        _getShareIcon(EvilIcons.sc_facebook, () {
+          var message = _titleController.value.text;
+          SocialShare.shareFacebookStory(
+              selectedImage, "#ffffff", "#000000", "https://google.com",
+              appId: "1962631037385169");
+        }),
+        _getShareIcon(EvilIcons.sc_instagram, () {
+          var message = _titleController.value.text;
+          SocialShare.shareInstagramStory(
+              selectedImage, "#ffffff", "#000000", "https://deep-link-url");
+        }),
+        _getShareIcon(EvilIcons.sc_twitter, () {
+          var message = _titleController.value.text;
+          SocialShare.shareOptions(message,
+              imagePath: selectedImage, package: "com.twitter.android");
+        }),
+        _getShareIcon(FontAwesome.whatsapp, () {
+          var message = _titleController.value.text;
+          SocialShare.shareOptions(message,
+              imagePath: selectedImage, package: "com.whatsapp");
+          // shareWhatsApp(message, selectedImage);
+        }),
+        _getShareIcon(EvilIcons.sc_telegram, () {
+          var message = _titleController.value.text;
+          SocialShare.shareOptions(message,
+              imagePath: selectedImage, package: "org.telegram.messenger");
+        }),
+      ],
+    );
+  }
+
+  Widget _getShareIcon(IconData icon, Function onClick) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+      child: GestureDetector(
+          onTap: onClick,
+          child: Icon(
+            icon,
+            size: 36,
+            color: Colors.blue,
+          )),
+    );
   }
 }

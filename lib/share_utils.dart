@@ -1,7 +1,9 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intent/action.dart' as android_action;
+import 'package:intent/extra.dart' as android_extra;
+import 'package:intent/intent.dart' as android_intent;
+import 'package:intent/typedExtra.dart' as android_typedExtra;
 import 'package:social_share/social_share.dart';
 
 Widget getShareWidget() {
@@ -9,18 +11,6 @@ Widget getShareWidget() {
     mainAxisAlignment: MainAxisAlignment.center,
     crossAxisAlignment: CrossAxisAlignment.center,
     children: <Widget>[
-      RaisedButton(
-        onPressed: () async {
-          PickedFile file =
-              await ImagePicker().getImage(source: ImageSource.gallery);
-          SocialShare.shareInstagramStory(
-                  file.path, "#ffffff", "#000000", "https://deep-link-url")
-              .then((data) {
-            print(data);
-          });
-        },
-        child: Text("Share On Instagram Story"),
-      ),
       RaisedButton(
         onPressed: () async {
           ImagePicker()
@@ -38,27 +28,6 @@ Widget getShareWidget() {
       ),
       RaisedButton(
         onPressed: () async {
-          ImagePicker()
-              .getImage(source: ImageSource.gallery)
-              .then((image) async {
-            Platform.isAndroid
-                ? SocialShare.shareFacebookStory(
-                        image.path, "#ffffff", "#000000", "https://google.com",
-                        appId: "1962631037385169")
-                    .then((data) {
-                    print(data);
-                  })
-                : SocialShare.shareFacebookStory(
-                        image.path, "#ffffff", "#000000", "https://google.com")
-                    .then((data) {
-                    print(data);
-                  });
-          });
-        },
-        child: Text("Share On Facebook Story"),
-      ),
-      RaisedButton(
-        onPressed: () async {
           SocialShare.copyToClipboard(
             "This is Social Share plugin",
           ).then((data) {
@@ -66,28 +35,6 @@ Widget getShareWidget() {
           });
         },
         child: Text("Copy to clipboard"),
-      ),
-      RaisedButton(
-        onPressed: () async {
-          SocialShare.shareTwitter("This is Social Share twitter example",
-                  hashtags: ["hello", "world", "foo", "bar"],
-                  url: "https://google.com/#/hello",
-                  trailingText: "\nhello")
-              .then((data) {
-            print(data);
-          });
-        },
-        child: Text("Share on twitter"),
-      ),
-      RaisedButton(
-        onPressed: () async {
-          SocialShare.shareSms("This is Social Share Sms example",
-                  url: "\nhttps://google.com/", trailingText: "\nhello")
-              .then((data) {
-            print(data);
-          });
-        },
-        child: Text("Share on Sms"),
       ),
       RaisedButton(
         onPressed: () async {
@@ -129,4 +76,19 @@ Widget getShareWidget() {
       ),
     ],
   );
+}
+
+shareWhatsApp(String title, String image) {
+  android_intent.Intent()
+    ..setAction(android_action.Action.ACTION_SEND_MULTIPLE)
+    ..putExtra(android_extra.Extra.EXTRA_PACKAGE_NAME, "com.whatsapp",
+        type: android_typedExtra.TypedExtra.stringExtra)
+    ..setType("text/plain")
+    ..putExtra(android_extra.Extra.EXTRA_TITLE, title)
+    ..setData(Uri(scheme: 'content',
+        path: image))
+    // ..putExtra(android_extra.Extra.EXTRA_STREAM, Uri.parse("file://$image").toFilePath())
+    ..setType("image/*")
+    // ..addFlag(1)
+    ..startActivity().catchError((e) => print(e));
 }
