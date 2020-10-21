@@ -12,12 +12,17 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        primaryColor: Colors.black,
-        scaffoldBackgroundColor: Colors.black,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
+          primaryColor: Colors.black,
+          scaffoldBackgroundColor: Colors.black,
+          visualDensity: VisualDensity.adaptivePlatformDensity,
+          snackBarTheme: SnackBarThemeData(
+              backgroundColor: Colors.black,
+              actionTextColor: Colors.blueAccent,
+              contentTextStyle: TextStyle(color: Colors.purpleAccent[700]),
+              elevation: 10,
+              shape: RoundedRectangleBorder(),
+              )),
       home: HomeScreen(),
     );
   }
 }
-

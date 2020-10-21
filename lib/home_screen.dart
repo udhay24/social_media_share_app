@@ -16,6 +16,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final picker = ImagePicker();
   final TextEditingController _titleController = TextEditingController();
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   var selectedImage;
 
   void changeImage(newImage) {
@@ -33,12 +34,16 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        key: _scaffoldKey,
         appBar: AppBar(title: Text("Social Share")),
         body: Column(
           mainAxisSize: MainAxisSize.max,
           children: [
             TextField(
               controller: _titleController,
+              cursorColor: Colors.purpleAccent,
+              cursorRadius: Radius.circular(10),
+              cursorWidth: 2,
               decoration: InputDecoration(
                   fillColor: Colors.black,
                   filled: true,
@@ -47,6 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   hintStyle: TextStyle(color: Colors.grey[600])),
               style: TextStyle(color: Colors.white),
             ),
+            SizedBox(height: 10,),
             Expanded(child: buildSelectedImagePreview(selectedImage)),
             Align(
               alignment: Alignment.bottomCenter,
@@ -72,7 +78,7 @@ class _HomeScreenState extends State<HomeScreen> {
               thickness: 2,
               color: Colors.grey[900],
             ),
-            getShareOptions()
+            getShareOptions(context)
           ],
         ));
   }
@@ -100,7 +106,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   height: 100,
                   width: 90,
                   child: Icon(
-                    EvilIcons.camera,
+                    MaterialCommunityIcons.camera,
                     size: 36,
                     color: Colors.blue,
                   )),
@@ -127,7 +133,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   height: 100,
                   width: 90,
                   child: Icon(
-                    EvilIcons.image,
+                    MaterialCommunityIcons.image_outline,
                     size: 36,
                     color: Colors.blue,
                   )),
@@ -163,36 +169,74 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Widget getShareOptions() {
+  Widget getShareOptions(BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.max,
       children: [
-        _getShareIcon(EvilIcons.sc_facebook, () {
+        _getShareIcon(MaterialCommunityIcons.facebook, () {
           var message = _titleController.value.text;
-          SocialShare.shareFacebookStory(
-              selectedImage, "#ffffff", "#000000", "https://google.com",
-              appId: "1962631037385169");
+          if (selectedImage != null) {
+            SocialShare.shareOptions(message,
+                imagePath: selectedImage, package: "com.facebook.katana");
+          } else {
+            _scaffoldKey.currentState.showSnackBar(
+                SnackBar(content: Text("select an image to share")));
+          }
+          //       SocialShare.shareFacebookStory(
+          //       selectedImage, "#ffffff", "#000000", "https://google.com",
+          //       appId: "1962631037385169");
         }),
-        _getShareIcon(EvilIcons.sc_instagram, () {
+        _getShareIcon(MaterialCommunityIcons.instagram, () {
           var message = _titleController.value.text;
-          SocialShare.shareInstagramStory(
-              selectedImage, "#ffffff", "#000000", "https://deep-link-url");
+          if (selectedImage != null) {
+            SocialShare.shareOptions(message,
+                imagePath: selectedImage, package: "com.instagram.android");
+          } else {
+            _scaffoldKey.currentState.showSnackBar(
+                SnackBar(content: Text("select an image to share")));
+          }
+          // SocialShare.shareInstagramStory(
+          //     selectedImage, "#ffffff", "#000000", "https://deep-link-url");
         }),
-        _getShareIcon(EvilIcons.sc_twitter, () {
+        _getShareIcon(MaterialCommunityIcons.twitter, () {
           var message = _titleController.value.text;
-          SocialShare.shareOptions(message,
-              imagePath: selectedImage, package: "com.twitter.android");
+          if (selectedImage != null) {
+            SocialShare.shareOptions(message,
+                imagePath: selectedImage, package: "com.twitter.android");
+          } else {
+            _scaffoldKey.currentState.showSnackBar(
+                SnackBar(content: Text("select an image to share")));
+          }
         }),
-        _getShareIcon(FontAwesome.whatsapp, () {
+        _getShareIcon(MaterialCommunityIcons.whatsapp, () {
           var message = _titleController.value.text;
-          SocialShare.shareOptions(message,
-              imagePath: selectedImage, package: "com.whatsapp");
+          if (selectedImage != null) {
+            SocialShare.shareOptions(message,
+                imagePath: selectedImage, package: "com.whatsapp");
+          } else {
+            _scaffoldKey.currentState.showSnackBar(
+                SnackBar(content: Text("select an image to share")));
+          }
           // shareWhatsApp(message, selectedImage);
         }),
-        _getShareIcon(EvilIcons.sc_telegram, () {
+        _getShareIcon(MaterialCommunityIcons.telegram, () {
           var message = _titleController.value.text;
-          SocialShare.shareOptions(message,
-              imagePath: selectedImage, package: "org.telegram.messenger");
+          if (selectedImage != null) {
+            SocialShare.shareOptions(message,
+                imagePath: selectedImage, package: "org.telegram.messenger");
+          } else {
+            _scaffoldKey.currentState.showSnackBar(
+                SnackBar(content: Text("select an image to share")));
+          }
+        }),
+        _getShareIcon(MaterialCommunityIcons.share_outline, () {
+          var message = _titleController.value.text;
+          if (selectedImage != null) {
+            SocialShare.shareOptions(message, imagePath: selectedImage);
+          } else {
+            _scaffoldKey.currentState.showSnackBar(
+                SnackBar(content: Text("select an image to share")));
+          }
         }),
       ],
     );
@@ -200,12 +244,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _getShareIcon(IconData icon, Function onClick) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: GestureDetector(
           onTap: onClick,
           child: Icon(
             icon,
-            size: 36,
+            size: 24,
             color: Colors.blue,
           )),
     );
