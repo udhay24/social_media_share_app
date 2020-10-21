@@ -1,4 +1,4 @@
-name: social_media_share_app
+name: share
 description: A new Flutter application.
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -25,6 +25,12 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: "^0.8.0"
+
+flutter_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icon/app_icon.jpeg"
 
 flutter:
 
